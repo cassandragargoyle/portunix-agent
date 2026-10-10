@@ -1,0 +1,12 @@
+{
+  // Disable line length check (rely on editor wrapping; long URLs/tables stay readable)
+  "MD013": false,
+  // Ordered lists use sequential numbering (1, 2, 3)
+  "MD029": {
+    "style": "ordered"
+  },
+  // Allow hard tabs inside code blocks (Java/Go code style uses tabs)
+  "MD010": {
+    "code_blocks": false
+  }
+}

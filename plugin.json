@@ -1,0 +1,32 @@
+{
+  "name": "agent",
+  "version": "0.1.0",
+  "description": "Remote device control agent — file browsing, accessibility, keyboard, browser automation",
+  "author": "CassandraGargoyle",
+  "plugin": {
+    "type": "helper",
+    "binary": "ptx-agent",
+    "runtime": "native"
+  },
+  "dependencies": {
+    "portunix_min_version": "1.10.0",
+    "os_support": ["linux", "windows"]
+  },
+  "ai_integration": {
+    "type": "mcp-server",
+    "transport": "stdio"
+  },
+  "permissions": {
+    "level": "full",
+    "filesystem": ["read", "write"],
+    "network": ["connect"],
+    "system": ["process", "accessibility"]
+  },
+  "commands": [
+    {"name": "files", "description": "File browsing on target machine", "subcommands": ["list"]},
+    {"name": "vscode", "description": "VS Code control via accessibility APIs", "subcommands": ["status", "terminal", "tree"]},
+    {"name": "app", "description": "Application control — keyboard, windows", "subcommands": ["type", "key", "focus", "list-windows"]},
+    {"name": "mcp", "description": "MCP server for AI assistant integration", "subcommands": ["serve", "configure"]},
+    {"name": "browser", "description": "Browser automation via Playwright", "subcommands": ["launch", "close"]}
+  ]
+}

@@ -1,0 +1,132 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+    working-directory: src
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: src/go.mod
+          cache-dependency-path: src/go.sum
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Check formatting
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "The following files are not formatted:"
+            gofmt -s -l .
+            exit 1
+          fi
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: src/go.mod
+          cache-dependency-path: src/go.sum
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run unit tests
+        run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
+
+      - name: Generate coverage summary
+        run: go tool cover -func=coverage.out > coverage-summary.txt
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            src/coverage.out
+            src/coverage-summary.txt
+
+  cross-platform:
+    name: Cross Platform Tests
+    runs-on: ${{ matrix.os }}
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: src/go.mod
+          cache-dependency-path: src/go.sum
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Build
+        run: go build ./...
+
+      - name: Run unit tests
+        run: go test ./...
+
+      - name: Test CLI functionality
+        run: |
+          go run ./cmd/ptx-agent --help
+          go run ./cmd/ptx-agent browser --help
+          go run ./cmd/ptx-agent mcp --help
+
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [lint, unit-tests, cross-platform]
+    if: always()
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Check job results
+        run: |
+          if [[ "${{ needs.lint.result }}" != "success" ]]; then
+            echo "Lint check failed"
+            exit 1
+          fi
+          if [[ "${{ needs.unit-tests.result }}" != "success" ]]; then
+            echo "Unit tests failed"
+            exit 1
+          fi
+          if [[ "${{ needs.cross-platform.result }}" != "success" ]]; then
+            echo "Cross-platform tests failed"
+            exit 1
+          fi
+          echo "All quality gates passed"
