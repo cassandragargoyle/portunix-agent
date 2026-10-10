@@ -50,6 +50,7 @@ PLATFORMS = [
 
 BINARY_NAME = "ptx-agent"
 SRC_DIR = "src"
+VERSION_VAR = "github.com/CassandraGargoyle/portunix-agent/internal/version.Version"
 
 
 def print_header() -> None:
@@ -106,15 +107,16 @@ def calculate_sha256(file_path: Path) -> str:
     return sha256_hash.hexdigest()
 
 
-def cross_compile(project_root: Path, target_os: str, target_arch: str, output_path: Path) -> bool:
+def cross_compile(project_root: Path, target_os: str, target_arch: str, output_path: Path, version: str) -> bool:
     """Cross-compile Go binary for given platform"""
     env = os.environ.copy()
     env["GOOS"] = target_os
     env["GOARCH"] = target_arch
     env["CGO_ENABLED"] = "0"
 
-    cmd = ["go", "build", "-o", str(output_path), f"./cmd/{BINARY_NAME}/"]
-    print_info(f"GOOS={target_os} GOARCH={target_arch} go build -o {output_path.name}")
+    ldflags = f"-X {VERSION_VAR}={version}"
+    cmd = ["go", "build", "-ldflags", ldflags, "-o", str(output_path), f"./cmd/{BINARY_NAME}/"]
+    print_info(f"GOOS={target_os} GOARCH={target_arch} go build -ldflags \"{ldflags}\" -o {output_path.name}")
 
     result = subprocess.run(cmd, cwd=project_root / SRC_DIR, env=env, capture_output=True, text=True)
     if result.returncode != 0:
@@ -153,7 +155,7 @@ def create_release(version: str) -> bool:
         bin_name = binary_name_for_platform(target_os)
         output_path = plugin_dist / bin_name
 
-        if not cross_compile(project_root, target_os, target_arch, output_path):
+        if not cross_compile(project_root, target_os, target_arch, output_path, version):
             return False
 
         # Set executable permission on Unix binaries

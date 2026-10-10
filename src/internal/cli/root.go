@@ -7,6 +7,9 @@
 package cli
 
 import (
+	"fmt"
+
+	"github.com/CassandraGargoyle/portunix-agent/internal/version"
 	"github.com/spf13/cobra"
 )
 
@@ -18,9 +21,15 @@ remote device control on machines where it is installed.
 
 It provides application switching, keyboard input simulation,
 and file browsing capabilities within configured security boundaries.`,
+	Version: version.Version,
 }
 
 func init() {
+	// Define the flag here so cobra does not add the -v shorthand
+	rootCmd.Flags().Bool("version", false, "Print the ptx-agent version")
+	rootCmd.SetVersionTemplate(fmt.Sprintf(versionTemplate, "{{.Version}}"))
+
+	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(filesCmd)
 	rootCmd.AddCommand(vscodeCmd)
 	rootCmd.AddCommand(appCmd)

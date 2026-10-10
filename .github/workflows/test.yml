@@ -106,6 +106,11 @@ jobs:
           go run ./cmd/ptx-agent browser --help
           go run ./cmd/ptx-agent mcp --help
 
+      - name: Smoke test version output
+        run: |
+          go run ./cmd/ptx-agent --version | tr -d '\r' | grep -E '^ptx-agent version [^[:space:]]+$'
+          go run ./cmd/ptx-agent version | tr -d '\r' | grep -E '^ptx-agent version [^[:space:]]+$'
+
   quality-gate:
     name: Quality Gate
     runs-on: ubuntu-latest

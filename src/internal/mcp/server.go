@@ -22,6 +22,8 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+
+	"github.com/CassandraGargoyle/portunix-agent/internal/version"
 )
 
 // JSON-RPC 2.0 types
@@ -279,7 +281,7 @@ func (s *Server) handleInitialize(id json.RawMessage) {
 		Capabilities:    mcpCaps{Tools: &struct{}{}},
 		ServerInfo: serverInfo{
 			Name:    "ptx-agent",
-			Version: "0.1.0",
+			Version: version.Version,
 		},
 	})
 }

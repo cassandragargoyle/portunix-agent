@@ -22,6 +22,15 @@ endif
 
 BINARY := $(BINARY_NAME)$(EXE_EXT)
 
+# Read the version from plugin.json with make functions only (works with SHELL := cmd)
+# Expects the form "version": "X.Y.Z" and falls back to dev when it is not found
+VERSION := $(firstword $(subst ", ,$(patsubst PTXVER=%,%,$(firstword $(filter PTXVER=%,$(subst "version": ",PTXVER=,$(file < plugin.json)))))))
+ifeq ($(VERSION),)
+    VERSION := dev
+endif
+VERSION_PKG := github.com/CassandraGargoyle/portunix-agent/internal/version
+LDFLAGS := -X $(VERSION_PKG).Version=$(VERSION)
+
 # Default target
 help:
 	@echo portunix-agent Build Commands
@@ -42,8 +51,8 @@ help:
 all: build
 
 build:
-	@echo Building $(BINARY)...
-	cd $(SRC_DIR) && go build -o ../$(BINARY) ./cmd/ptx-agent/
+	@echo Building $(BINARY) version $(VERSION)...
+	cd $(SRC_DIR) && go build -ldflags "$(LDFLAGS)" -o ../$(BINARY) ./cmd/ptx-agent/
 	@echo Built $(BINARY)
 
 build-debug:

@@ -16,6 +16,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/CassandraGargoyle/portunix-agent/internal/version"
 )
 
 // testServer creates a server with captured output for testing
@@ -64,6 +66,9 @@ func TestHandleInitialize(t *testing.T) {
 	}
 	if initResult.ServerInfo.Name != "ptx-agent" {
 		t.Errorf("expected server name ptx-agent, got %s", initResult.ServerInfo.Name)
+	}
+	if initResult.ServerInfo.Version != version.Version {
+		t.Errorf("expected server version %s, got %s", version.Version, initResult.ServerInfo.Version)
 	}
 	if initResult.Capabilities.Tools == nil {
 		t.Error("expected tools capability to be set")
