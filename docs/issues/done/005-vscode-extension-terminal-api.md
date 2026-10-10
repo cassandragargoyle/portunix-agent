@@ -3,6 +3,7 @@
 **Type**: enhancement
 **Priority**: medium
 **Status**: ✅ Implemented
+**GitHub**: #5
 **Depends on**: Issue #003, Issue #004
 **Assigned to**: Portunix VS Code Extension team
 

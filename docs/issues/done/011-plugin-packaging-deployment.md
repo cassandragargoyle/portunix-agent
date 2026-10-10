@@ -3,6 +3,7 @@
 **Type**: enhancement
 **Priority**: high
 **Status**: ✅ Implemented
+**GitHub**: #11
 **Branch**: feature/011-plugin-packaging (merged to main)
 **Depends on**: Issue #001
 **Related ADR**: ADR-003

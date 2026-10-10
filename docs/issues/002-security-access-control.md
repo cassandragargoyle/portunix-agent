@@ -3,6 +3,7 @@
 **Type**: security
 **Priority**: high
 **Status**: needs-triage
+**GitHub**: #2
 **Branch**: TBD
 
 ## Problem

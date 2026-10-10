@@ -3,6 +3,7 @@
 **Type**: enhancement
 **Priority**: high
 **Status**: ✅ Implemented
+**GitHub**: #10
 **Branch**: `feature/010-mcp-http-transport`
 **Depends on**: Issue #006
 **Blocks**: Issue #009

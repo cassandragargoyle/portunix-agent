@@ -1,6 +1,7 @@
 # #012 - Implement --help-ai Flag
 
 **Status**: Open
+**GitHub**: #12
 **Priority**: Medium
 **Type**: Enhancement
 **Labels**: enhancement, cli, ai-integration

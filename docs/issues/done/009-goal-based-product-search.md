@@ -3,9 +3,10 @@
 **Type**: enhancement
 **Priority**: medium
 **Status**: ✅ Implemented
+**GitHub**: #9
 **Branch**: `feature/010-mcp-http-transport`
 **Depends on**: Issue #008
-**Related UC**: [UC-001](../../../use-cases/UC-001-goal-based-product-search.md)
+**Related UC**: [UC-001](../../use-cases/UC-001-goal-based-product-search.md)
 
 ## Feature Description
 

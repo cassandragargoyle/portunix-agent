@@ -3,6 +3,7 @@
 **Type**: enhancement
 **Priority**: high
 **Status**: ✅ Implemented
+**GitHub**: #4
 **Depends on**: Issue #003 (MVP VS Code accessibility control — Linux)
 
 ## Feature Description

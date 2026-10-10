@@ -3,8 +3,10 @@
 **Type**: enhancement
 **Priority**: medium
 **Status**: Open
+**GitHub**: #15
 **Branch**: `feature/015-version-flag`
 **Labels**: enhancement, cli, build
+**Related**: #012
 
 ## Problem Description
 

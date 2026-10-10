@@ -59,8 +59,9 @@ See docs/contributing/CODE-STYLE-*.md for language-specific guidelines
 
 ### Issue Tracking & Documentation
 
-- Issues are managed per project individually
-- May sync to GitHub repositories when applicable
+- GitHub is the single source of truth for the issue list and assigns the issue number
+- Long-form write-ups live in `docs/issues/NNN-name.md` (`NNN` = GitHub number), archived to `docs/issues/done/`
+- See [docs/contributing/ISSUE-MANAGEMENT.md](docs/contributing/ISSUE-MANAGEMENT.md); use `/create-issue` to create an issue
 - Common issue types: Configuration issues, build problems, compatibility issues
 
 ### Team Communication
@@ -86,7 +87,7 @@ See docs/contributing/CODE-STYLE-*.md for language-specific guidelines
 ### Repository Management
 
 - Main branch is `main` (not `master`)
-- Issues tracked in project-specific locations
+- Issues tracked on GitHub, write-ups in `docs/issues/`
 - License: MIT (see `LICENSE`)
 - GitHub format: https://github.com/CassandraGargoyle/portunix-agent
 

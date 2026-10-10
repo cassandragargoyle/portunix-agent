@@ -3,6 +3,7 @@
 **Type**: enhancement
 **Priority**: high
 **Status**: ✅ Implemented
+**GitHub**: #3
 **Branch**: `feature/003-vscode-accessibility-control` (merged to main)
 **Closed**: 2026-02-18
 **Depends on**: Issue #001 (MVP ptx-agent)

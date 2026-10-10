@@ -3,6 +3,7 @@
 **Type**: enhancement
 **Priority**: high
 **Status**: ✅ Implemented
+**GitHub**: #13
 **Branch**: `feature/013-browser-persistent-profile`
 **Depends on**: Issue #008
 
@@ -67,4 +68,4 @@ NOT about defeating CAPTCHAs automatically; no challenge-solving logic is in sco
 - [x] `agent_browser_connect` attaches to a user-started browser via CDP and all
       existing browser tools work on the attached instance
 - [x] Documentation of the recommended flow for anti-bot-protected sites
-      (see [docs/BROWSER-ANTI-BOT.md](../../../BROWSER-ANTI-BOT.md))
+      (see [docs/BROWSER-ANTI-BOT.md](../../BROWSER-ANTI-BOT.md))

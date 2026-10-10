@@ -1,7 +1,7 @@
 # UC-001 — Goal-Based Product Search on E-Shop
 
 **Status**: ✅ Covered by Issue
-**Related Issue**: [#009](../issues/internal/done/009-goal-based-product-search.md)
+**Related Issue**: [#009](../issues/done/009-goal-based-product-search.md)
 **Created**: 2026-02-21
 
 ## Actor

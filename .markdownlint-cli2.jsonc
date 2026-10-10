@@ -8,7 +8,6 @@
   // Glob patterns for files to ignore
   "ignores": [
     "docs/adr/**",
-    "docs/issues/internal/**",
     "docs/testing/internal/**",
     "docs/private/**",
     "docs/notes/**",

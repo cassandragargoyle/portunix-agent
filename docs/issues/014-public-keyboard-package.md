@@ -3,6 +3,7 @@
 **Type**: enhancement
 **Priority**: high
 **Status**: Open
+**GitHub**: #14
 **Branch**: `feature/014-public-keyboard-package`
 **Labels**: enhancement, keyboard, library
 **Requested by**: portunix-archon issue #1

@@ -1,6 +1,6 @@
 ---
 name: implement-issue
-description: Průvodce implementací issue - od přečtení zadání přes vytvoření branch, implementaci kódu, commit až po merge do main a uzavření issue
+description: Průvodce implementací issue - od přečtení zadání v docs/issues/ přes vytvoření branch, implementaci kódu, commit a merge do main až po archivaci do docs/issues/done/ a uzavření issue na GitHubu
 ---
 
 Průvodce implementací issue - od přečtení zadání přes vytvoření branch, implementaci kódu, commit až po merge do main a uzavření issue.
@@ -19,13 +19,15 @@ Zkontroluj aktuální roli v `CLAUDE.local.md`. Pokud role není **Developer**:
 
 ## KROK 1: Získej issue
 
-Zeptej se mě na název nebo ID interního issue. Počkej na mou odpověď.
+Zeptej se mě na název nebo číslo issue (číslo z GitHubu). Počkej na mou odpověď.
 
 ## KROK 2: Potvrzení porozumění
 
 Poté, co ti poskytnu issue:
 
-1. Přečti soubor issue z `docs/issues/internal/`
+1. Přečti soubor issue z `docs/issues/` (aktivní issue; `NNN` = číslo z GitHubu).
+   Pokud tam není, zkus `docs/issues/done/` — může jít o už uzavřené issue.
+   Stav na GitHubu: `gh issue view <N> --repo cassandragargoyle/portunix-agent`
 2. Přeformuluj issue vlastními slovy
 3. Vysvětli potřebné změny v kódu
 4. Požádej mě o potvrzení
@@ -34,10 +36,10 @@ Poté, co ti poskytnu issue:
 
 ## KROK 3: Vytvoř branch
 
-Vytvoř git branch: `feature/<issue-id>-<kratky-popis>` nebo `fix/<issue-id>-<kratky-popis>`
+Vytvoř git branch: `feature/issue-<N>-<kratky-popis>` nebo `fix/issue-<N>-<kratky-popis>`
 
 - Použij malá písmena a pomlčky pro popis
-- Příklad: `feature/TA042-add-export-api`
+- Příklad: `feature/issue-42-add-export-api`
 Zobraz git příkaz před jeho spuštěním.
 
 ## KROK 4: Implementace
@@ -102,11 +104,26 @@ Připrav PR popis:
 - **Changes**: Seznam změn
 - **Testing**: Kroky pro ověření
 
-## KROK 7: Aktualizace issue
+## KROK 7: Aktualizace a archivace issue
 
-Uprav soubor issue v `docs/issues/internal/`:
+1. Uprav soubor issue v `docs/issues/`:
+   - Změň `**Status**: Open` na `**Status**: Implemented`
+   - Přidej datum uzavření
 
-- Změň `**Status:** 📋 Open` na `**Status:** ✅ Implemented`
-- Aktualizuj status v `docs/issues/README.md`
+2. Archivuj soubor do `done/` (zachová git historii):
 
-Commitni změnu stavu issue.
+   ```bash
+   git mv docs/issues/<NNN>-<nazev>.md docs/issues/done/<NNN>-<nazev>.md
+   ```
+
+3. Zavři GitHub issue (GitHub je seznam issue, žádné README tabulky nejsou):
+
+   ```bash
+   gh issue close <N> --repo cassandragargoyle/portunix-agent --comment "Implemented in <commit/verze>."
+   ```
+
+4. Commitni změnu stavu issue společně s přesunem:
+
+   ```text
+   docs(<issue-id>): archive - implementation complete
+   ```

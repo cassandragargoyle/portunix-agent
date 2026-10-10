@@ -3,10 +3,11 @@
 **Type**: enhancement
 **Priority**: high
 **Status**: ✅ Implemented
+**GitHub**: #6
 **Branch**: `feature/006-mcp-server` (merged to main)
 **Closed**: 2026-02-21
 **Depends on**: Issue #001
-**ADR**: [ADR-001](../../../adr/001-ptx-agent-mcp-server.md)
+**ADR**: [ADR-001](../../adr/001-ptx-agent-mcp-server.md)
 
 ## Feature Description
 

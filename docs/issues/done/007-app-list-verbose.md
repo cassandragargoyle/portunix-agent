@@ -3,6 +3,7 @@
 **Type**: enhancement
 **Priority**: low
 **Status**: ✅ Implemented
+**GitHub**: #7
 **Branch**: `feature/007-app-list-verbose` (merged to main)
 **Closed**: 2026-02-21
 **Depends on**: Issue #001

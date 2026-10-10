@@ -3,6 +3,7 @@
 **Type**: enhancement
 **Priority**: high
 **Status**: needs-triage
+**GitHub**: #1
 **Branch**: `feature/issue-001-mvp-ptx-agent`
 
 ## Feature Description

@@ -99,23 +99,25 @@ Zobraz uživateli vytvořený UC soubor a zeptej se na potvrzení:
 
 Na základě UC vytvoř issue pro implementaci:
 
-### 4a: Urči číslo issue
+### 4a: Vytvoř GitHub issue (číslo přidělí GitHub)
 
-Zjisti nejvyšší existující číslo issue z `docs/issues/README.md` indexu. Nové issue dostane číslo o 1 vyšší.
+Postupuj podle skillu `/create-issue` (kontrola duplicit, kontrola citlivého obsahu, `gh issue create`).
+Číslo `N` vezmi z adresy, kterou `gh` vypíše; `NNN` je `N` doplněné nulami na tři číslice.
+Číslo nikdy neodvozuj z existujících souborů.
 
 ### 4b: Vytvoř issue soubor
 
-Vytvoř soubor `docs/issues/internal/{NNN}-{slug}.md`:
+Vytvoř soubor `docs/issues/{NNN}-{slug}.md`:
 
 ```markdown
-# Issue #{NNN} - {Title from UC}
+# Issue #{N}: {Title from UC}
 
-**Type**: enhancement
-**Priority**: medium
-**Status**: 📋 Open
-**Branch**: TBD
-**Depends on**: —
-**Related UC**: [UC-{UC-NNN}](../../use-cases/UC-{UC-NNN}-{slug}.md)
+**Status**: Open
+**Priority**: Medium
+**Type**: Enhancement
+**Created**: {YYYY-MM-DD}
+**GitHub**: #{N}
+**Related UC**: [UC-{UC-NNN}](../use-cases/UC-{UC-NNN}-{slug}.md)
 
 ## Feature Description
 
@@ -132,20 +134,17 @@ Implementation of use case UC-{UC-NNN} — {UC Title}.
 {odhad na základě rozsahu UC: Low / Medium / High}
 ```
 
-### 4c: Aktualizuj issue index
+### 4c: Odkaž detailní soubor z GitHubu
 
-Přidej řádek do tabulky v `docs/issues/README.md`:
-
-```text
-| [{NNN}](internal/{NNN}-{slug}.md) | {Title} | enhancement | medium | 📋 Open | TBD | — |
-```
+Doplň do těla GitHub issue odkaz na detailní soubor (viz KROK 6 skillu `/create-issue`).
+Žádný index issue se neudržuje.
 
 ### 4d: Aktualizuj UC soubor
 
 V UC souboru změň:
 
 - `**Status**: 📋 New` na `**Status**: ✅ Covered by Issue`
-- `**Related Issue**: —` na `**Related Issue**: [#{NNN}](../issues/internal/{NNN}-{slug}.md)`
+- `**Related Issue**: —` na `**Related Issue**: [#{N}](../issues/{NNN}-{slug}.md)`
 
 Aktualizuj i status v UC indexu (`docs/use-cases/README.md`).
 
@@ -154,7 +153,7 @@ Aktualizuj i status v UC indexu (`docs/use-cases/README.md`).
 Commitni všechny nové a upravené soubory:
 
 ```text
-docs(UC-{UC-NNN}): add use case and implementation issue #{NNN}
+docs(UC-{UC-NNN}): add use case and implementation issue #{N}
 ```
 
 **STOP** - Zeptej se na potvrzení commit message před commitnutím.
@@ -164,6 +163,6 @@ docs(UC-{UC-NNN}): add use case and implementation issue #{NNN}
 Zobraz shrnutí:
 
 - Vytvořený UC: `docs/use-cases/UC-{NNN}-{slug}.md`
-- Vytvořený issue: `docs/issues/internal/{NNN}-{slug}.md`
-- Aktualizované indexy: `docs/use-cases/README.md`, `docs/issues/README.md`
+- Vytvořený issue: GitHub `#{N}` a `docs/issues/{NNN}-{slug}.md`
+- Aktualizovaný index: `docs/use-cases/README.md`
 - Další kroky: implementace issue pomocí `/implement-issue`

@@ -66,5 +66,5 @@ CDP-attached browser; it does not terminate it.
 | `channel` | `agent_browser_launch` / `--channel` | `chrome`, `chromium`, `msedge`, ... | use a system-installed browser instead of the bundled build |
 | `endpoint` | `agent_browser_connect` / `--endpoint` | URL | CDP endpoint of a user-started browser (default `http://localhost:9222`) |
 
-Related: [Issue #013](issues/internal/done/013-browser-bot-detection-persistent-profile.md),
+Related: [Issue #013](issues/done/013-browser-bot-detection-persistent-profile.md),
 [ADR-002](adr/002-browser-control-playwright.md)

@@ -17,4 +17,4 @@ Each use case may have one or more related issues in `docs/issues/` that track i
 
 | # | Title | Status | Related Issue |
 |---|-------|--------|---------------|
-| [UC-001](UC-001-goal-based-product-search.md) | Goal-Based Product Search on E-Shop | ✅ Covered by Issue | [#009](../issues/internal/done/009-goal-based-product-search.md) |
+| [UC-001](UC-001-goal-based-product-search.md) | Goal-Based Product Search on E-Shop | ✅ Covered by Issue | [#009](../issues/done/009-goal-based-product-search.md) |

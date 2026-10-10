@@ -3,9 +3,10 @@
 **Type**: enhancement
 **Priority**: high
 **Status**: ✅ Implemented
+**GitHub**: #8
 **Branch**: merged to main (df420bb)
 **Depends on**: Issue #001, Issue #006
-**ADR**: [ADR-002](../../../adr/002-browser-control-playwright.md)
+**ADR**: [ADR-002](../../adr/002-browser-control-playwright.md)
 
 ## Feature Description
 

@@ -1,6 +1,6 @@
 ---
 name: finish-branch
-description: Dokončení práce na feature branch - merge do hlavní větve, úklid branch a volitelná aktualizace stavu issue
+description: Dokončení práce na feature branch - merge do hlavní větve, úklid branch a volitelná archivace issue do docs/issues/done/ s uzavřením na GitHubu
 ---
 
 Dokončení práce na feature branch - merge do hlavní větve, úklid branch a volitelná aktualizace stavu issue.
@@ -53,22 +53,31 @@ Zeptej se uživatele: "Je tímto issue kompletně dokončeno?"
 
 ### Pokud ANO
 
-Uprav soubor issue v `docs/issues/internal/`:
+1. Uprav soubor issue v `docs/issues/`:
+   - Změň `**Status**: Open` na `**Status**: Implemented`
+   - Přidej datum uzavření
 
-- Změň `**Status:** 📋 Open` na `**Status:** ✅ Implemented`
-- Přidej datum uzavření
+2. Archivuj soubor do `done/` (zachová git historii):
 
-Aktualizuj také `docs/issues/README.md` - změň status v tabulce.
+   ```bash
+   git mv docs/issues/<NNN>-<nazev>.md docs/issues/done/<NNN>-<nazev>.md
+   ```
 
-Commitni změnu stavu issue:
+3. Zavři GitHub issue (GitHub je seznam issue, žádné README tabulky nejsou):
 
-```text
-docs(<issue-id>): Close issue - implementation complete
-```
+   ```bash
+   gh issue close <N> --repo cassandragargoyle/portunix-agent --comment "Implemented in <commit/verze>."
+   ```
+
+4. Commitni změnu stavu issue společně s přesunem:
+
+   ```text
+   docs(<issue-id>): archive - implementation complete
+   ```
 
 ### Pokud NE
 
-Přeskoč aktualizaci stavu. Issue zůstává otevřené pro další práci.
+Přeskoč aktualizaci stavu. Issue zůstává otevřené na GitHubu i v `docs/issues/` pro další práci.
 
 ## KROK 4: Shrnutí
 
@@ -76,5 +85,5 @@ Zobraz shrnutí:
 
 - Merge provedený do větve: `<název>`
 - Feature branch smazána: ano/ne
-- Issue status aktualizován: ano/ne/přeskočeno
+- Issue archivováno a zavřeno na GitHubu: ano/ne/přeskočeno
 - Další kroky (pokud jsou)

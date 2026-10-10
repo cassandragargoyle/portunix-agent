@@ -9,9 +9,8 @@ This document defines the mandatory workflow for issue development in the portun
 **Role: Architect / Product Owner**
 
 1. **Issue Creation**
-   - Create file `docs/issues/{number}-{name}.md`
-   - Update issue table in `docs/issues/README.md`
-   - Create corresponding GitHub issue with same content
+   - Create the GitHub issue first — GitHub assigns `{number}` (see [ISSUE-MANAGEMENT.md](ISSUE-MANAGEMENT.md), `/create-issue`)
+   - Create file `docs/issues/{number}-{name}.md` and link it from the GitHub issue
    - Define acceptance criteria and requirements
    - Assign appropriate labels and priority
 
@@ -84,7 +83,7 @@ This document defines the mandatory workflow for issue development in the portun
 2. **Merge Process**
    - Create merge request/pull request with acceptance protocol reference
    - Merge feature branch to main: `git merge feature/issue-{number}-{short-name}`
-   - Update issue status in `docs/issues/README.md`
+   - Archive the issue file to `docs/issues/done/`
    - Close GitHub issue with reference to acceptance protocol
 
 3. **Post-Merge Cleanup**
