@@ -151,8 +151,8 @@ None of these blocks the merge.
 
 - The branch adds a smoke step to the `cross-platform` job (`ubuntu-latest`, `windows-latest`).
   The step runs `go run ./cmd/ptx-agent --version` and `version` and checks the output format.
-- The job has not run yet, because the branch is not pushed. A green run on `windows-latest`
-  covers TC-03 on Windows.
+- CI run 38081028664 on commit `d255697` passed in all jobs (2026-10-10). The smoke step passed
+  on `windows-latest`, which covers TC-03 on Windows.
 - The CI step does not cover `make build` on Windows (`SHELL := cmd`) and does not run the
   packaged `ptx-agent.exe`. These two checks need a Windows host.
 
@@ -166,6 +166,10 @@ Required before approval:
 
 1. Run TC-01, TC-02 and TC-03 on Windows (`make build` with `SHELL := cmd`, then `ptx-agent.exe --version`).
 2. Run `ptx-agent.exe --version` from the `make dist` zip on Windows (TC-04).
+
+**Merge decision**: The project owner (zdendaku) approved the merge to `main` on 2026-10-10 as
+an exception to the CONDITIONAL status. The two checks above stay open as follow-up work and
+the tester status does not change to PASS until they are done.
 
 **Date**: 2026-10-10
 **Tester signature**: zdendaku (QA/Test Engineer)
