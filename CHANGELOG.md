@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now typed as a dead key sequence. A character that the layout cannot produce at all makes `Type`
   return an error that names the character and its position, and no key is sent. This applies to
   `Controller.Type` and to `Session.Type`.
+- **xdotool backend reported success for an unknown key name** (Issue #17) — `Key` with a
+  combination like `ctrl+nosuchkey` sent only the valid part and still reported success. The
+  combination is now validated before xdotool runs: an unknown key name returns the same error as
+  the uinput backend (`unknown key "nosuchkey" in combination "ctrl+nosuchkey"`), and no key is
+  sent. Both backends now accept the same key names, without regard to case (`pageup`, `tab`,
+  `f4`, `enter`). X keysym names outside this set (for example `Print`, `XF86AudioMute`) are no
+  longer passed to xdotool and return an error.
 
 ### Changed in Unreleased
 

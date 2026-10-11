@@ -7,7 +7,11 @@
 
 package keyboard
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 // TestNormalizeKeyCombination verifies that key combination strings are
 // correctly normalized: modifier names are lowercased, common aliases
@@ -29,6 +33,13 @@ func TestNormalizeKeyCombination(t *testing.T) {
 		{"super", "Super+l", "super+l"},
 		{"complex combo", "Ctrl+Shift+Alt+Delete", "ctrl+shift+alt+Delete"},
 		{"already normalized", "ctrl+shift+a", "ctrl+shift+a"},
+		{"lowercase aliases", "enter", "Return"},
+		{"lowercase tab", "alt+tab", "alt+Tab"},
+		{"page keys", "PageUp+pagedown", "Prior+Next"},
+		{"arrow key", "ctrl+left", "ctrl+Left"},
+		{"function key", "alt+f4", "alt+F4"},
+		{"symbols", "ctrl+-", "ctrl+minus"},
+		{"spaces around parts", "ctrl + s", "ctrl+s"},
 	}
 
 	for _, tt := range tests {
@@ -38,6 +49,65 @@ func TestNormalizeKeyCombination(t *testing.T) {
 				t.Errorf("NormalizeKeyCombination(%q) = %q, want %q", tt.input, got, tt.expected)
 			}
 		})
+	}
+}
+
+// TestNormalizeKeyCombination_CoversComboKeyMap verifies that every key name
+// accepted by comboToKeys normalizes to a name xdotool knows: a name from
+// the xdotool table, or a single letter or digit that xdotool takes as is
+func TestNormalizeKeyCombination_CoversComboKeyMap(t *testing.T) {
+	for name := range comboKeyMap {
+		if _, ok := keyNameMap[name]; ok {
+			continue
+		}
+		if len(name) == 1 && (name[0] >= 'a' && name[0] <= 'z' || name[0] >= '0' && name[0] <= '9') {
+			continue
+		}
+		t.Errorf("key name %q has no xdotool name", name)
+	}
+}
+
+// TestXdotoolKey_Validation verifies that the xdotool backend rejects a
+// combination with an unknown key name before xdotool runs, with the same
+// error as the uinput backend, and that valid combinations reach xdotool
+func TestXdotoolKey_Validation(t *testing.T) {
+	// A fake xdotool that records its arguments, no X server is needed
+	dir := t.TempDir()
+	log := filepath.Join(dir, "calls")
+	fake := filepath.Join(dir, "xdotool")
+	script := "#!/bin/sh\necho \"$@\" >> " + log + "\n"
+	if err := os.WriteFile(fake, []byte(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	b := &XdotoolBackend{path: fake}
+
+	for _, combo := range []string{"ctrl+nosuchkey", "nosuchkey", "ctrl+", "ctrl+Print"} {
+		err := b.Key(combo)
+		if err == nil {
+			t.Errorf("Key(%q): expected error", combo)
+			continue
+		}
+		_, want := comboToKeys(combo)
+		if err.Error() != want.Error() {
+			t.Errorf("Key(%q) error = %q, want %q", combo, err, want)
+		}
+	}
+	if _, err := os.Stat(log); !os.IsNotExist(err) {
+		t.Error("xdotool was called for an invalid combination")
+	}
+
+	for _, combo := range []string{"ctrl+s", "alt+Tab", "Return"} {
+		if err := b.Key(combo); err != nil {
+			t.Errorf("Key(%q): unexpected error: %v", combo, err)
+		}
+	}
+	got, err := os.ReadFile(log)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "key -- ctrl+s\nkey -- alt+Tab\nkey -- Return\n"
+	if string(got) != want {
+		t.Errorf("xdotool calls = %q, want %q", got, want)
 	}
 }
 
