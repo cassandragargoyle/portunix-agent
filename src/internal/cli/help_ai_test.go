@@ -159,27 +159,32 @@ func TestHelpAIParameters(t *testing.T) {
 	}
 	list := findCommand(t, files.Subcommands, "list")
 	path := findParameter(t, list, "path")
-	if path.Type != "string" || !path.Required {
+	if path.Type != "string" || !path.Required || !path.Positional || path.Description != "Directory path to list" {
 		t.Errorf("unexpected path parameter: %+v", path)
 	}
 	// Persistent flag of the parent command
-	allowed := findParameter(t, list, "--allowed-dirs")
-	if allowed.Type != "array" || allowed.Required || allowed.Default != "" {
+	allowed := findParameter(t, list, "allowed-dirs")
+	if allowed.Type != "array" || allowed.Required || allowed.Default != "" || allowed.Positional {
 		t.Errorf("unexpected --allowed-dirs parameter: %+v", allowed)
 	}
 
 	browser := findCommand(t, help.Commands, "browser")
-	headless := findParameter(t, findCommand(t, browser.Subcommands, "launch"), "--headless")
+	headless := findParameter(t, findCommand(t, browser.Subcommands, "launch"), "headless")
 	if headless.Type != "boolean" || headless.Default != "true" {
 		t.Errorf("unexpected --headless parameter: %+v", headless)
 	}
-	amount := findParameter(t, findCommand(t, browser.Subcommands, "scroll"), "--amount")
+	amount := findParameter(t, findCommand(t, browser.Subcommands, "scroll"), "amount")
 	if amount.Type != "integer" || amount.Default != "3" {
 		t.Errorf("unexpected --amount parameter: %+v", amount)
 	}
 	index := findParameter(t, findCommand(t, browser.Subcommands, "click"), "index")
 	if index.Type != "integer" || !index.Required {
 		t.Errorf("unexpected index parameter: %+v", index)
+	}
+	// The same placeholder is described for each command separately
+	info := findParameter(t, findCommand(t, files.Subcommands, "info"), "path")
+	if info.Description == path.Description {
+		t.Errorf("expected a command specific description, got %q", info.Description)
 	}
 	url := findParameter(t, findCommand(t, browser.Subcommands, "tab new"), "url")
 	if url.Required {
@@ -197,15 +202,21 @@ func TestHelpAIParametersAreComplete(t *testing.T) {
 			if c.Brief == "" {
 				t.Errorf("command %q has no brief", name)
 			}
+			seen := map[string]bool{}
 			for _, p := range c.Parameters {
 				if p.Name == "" || p.Type == "" || p.Description == "" {
 					t.Errorf("command %q has an incomplete parameter: %+v", name, p)
 				}
-				if p.Name == "--help" || p.Name == "--help-ai" {
-					t.Errorf("command %q must not list %s", name, p.Name)
+				if p.Name == "help" || p.Name == helpAIFlag || strings.HasPrefix(p.Name, "-") {
+					t.Errorf("command %q must not list %q", name, p.Name)
 				}
-				// A new placeholder needs an entry in positionalArgs
-				if _, known := positionalArgs[p.Name]; !known && !strings.HasPrefix(p.Name, "--") {
+				// Flags and positional arguments share one namespace
+				if seen[p.Name] {
+					t.Errorf("command %q has a duplicate parameter %q", name, p.Name)
+				}
+				seen[p.Name] = true
+				// A new positional argument needs an entry in positionalArgs
+				if strings.HasPrefix(p.Description, undescribedArgPrefix) {
 					t.Errorf("command %q has an undescribed positional argument %q", name, p.Name)
 				}
 			}

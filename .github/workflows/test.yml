@@ -111,6 +111,11 @@ jobs:
           go run ./cmd/ptx-agent --version | tr -d '\r' | grep -E '^ptx-agent version [^[:space:]]+$'
           go run ./cmd/ptx-agent version | tr -d '\r' | grep -E '^ptx-agent version [^[:space:]]+$'
 
+      - name: Smoke test help-ai output
+        run: |
+          go run ./cmd/ptx-agent --help-ai | jq -e '.tool == "ptx-agent" and (.commands | length > 0)'
+          go run ./cmd/ptx-agent files list --help-ai | jq -e '.tool == "ptx-agent"'
+
   quality-gate:
     name: Quality Gate
     runs-on: ubuntu-latest

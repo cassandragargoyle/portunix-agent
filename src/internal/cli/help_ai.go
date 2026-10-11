@@ -36,32 +36,46 @@ type aiCommand struct {
 	Subcommands []aiCommand   `json:"subcommands,omitempty"`
 }
 
-// aiParameter describes a positional argument or a flag
+// aiParameter describes a positional argument or a flag,
+// Positional tells the two apart because flag names carry no -- prefix
 type aiParameter struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
 	Required    bool   `json:"required"`
 	Description string `json:"description"`
 	Default     string `json:"default,omitempty"`
+	Positional  bool   `json:"positional,omitempty"`
 }
 
-// positionalArgs describes the argument placeholders used in the Use lines,
-// cobra keeps no type or description for positional arguments
+// positionalArgs describes the positional arguments, the key is the command path
+// and the placeholder from the Use line ("files list/path").
+// Cobra keeps no type or description for positional arguments
 var positionalArgs = map[string]aiParameter{
-	"path":        {Type: "string", Description: "File or directory path"},
-	"name":        {Type: "string", Description: "Application name or a part of it"},
-	"text":        {Type: "string", Description: "Text to send"},
-	"combination": {Type: "string", Description: "Key combination, for example ctrl+c"},
-	"query":       {Type: "string", Description: "Window name or a part of it"},
-	"window-id":   {Type: "string", Description: "Window identifier"},
-	"file.json":   {Type: "string", Description: "Path to the scenario JSON file"},
-	"url":         {Type: "string", Description: "URL to open"},
-	"index":       {Type: "integer", Description: "Element index from the elements command"},
-	"keys":        {Type: "string", Description: "Key combination, for example Enter or Control+a"},
-	"direction":   {Type: "string", Description: "Scroll direction: up, down, left, right"},
-	"value":       {Type: "string", Description: "Option value to select"},
-	"id":          {Type: "integer", Description: "Tab ID from the tabs command"},
+	"files list/path":          {Type: "string", Description: "Directory path to list"},
+	"files info/path":          {Type: "string", Description: "File path"},
+	"app tree/name":            {Type: "string", Description: "Application name or a part of it"},
+	"app read/name":            {Type: "string", Description: "Application name or a part of it"},
+	"keyboard type/text":       {Type: "string", Description: "Text to type"},
+	"keyboard key/combination": {Type: "string", Description: "Key combination, for example ctrl+c"},
+	"keyboard paste/text":      {Type: "string", Description: "Text to paste"},
+	"windows find/query":       {Type: "string", Description: "Window name or a part of it"},
+	"windows focus/window-id":  {Type: "string", Description: "Identifier of the window to focus"},
+	"scenario run/file.json":   {Type: "string", Description: "Path to the scenario JSON file"},
+	"browser goto/url":         {Type: "string", Description: "URL to navigate to"},
+	"browser click/index":      {Type: "integer", Description: "Index of the element to click, from the elements command"},
+	"browser type/index":       {Type: "integer", Description: "Index of the element to type into, from the elements command"},
+	"browser type/text":        {Type: "string", Description: "Text to type into the element"},
+	"browser keys/keys":        {Type: "string", Description: "Key combination, for example Enter or Control+a"},
+	"browser scroll/direction": {Type: "string", Description: "Scroll direction: up, down, left, right"},
+	"browser select/index":     {Type: "integer", Description: "Index of the dropdown element, from the elements command"},
+	"browser select/value":     {Type: "string", Description: "Option value to select"},
+	"browser tab switch/id":    {Type: "integer", Description: "ID of the tab to switch to, from the tabs command"},
+	"browser tab close/id":     {Type: "integer", Description: "ID of the tab to close, the current tab if omitted"},
+	"browser tab new/url":      {Type: "string", Description: "URL to open in the new tab"},
 }
+
+// undescribedArgPrefix starts the description of an argument missing in positionalArgs
+const undescribedArgPrefix = "Positional argument "
 
 // helpAIRequested reports whether the arguments contain the --help-ai flag.
 // The check runs before cobra, so the flag works at any position and
@@ -137,7 +151,8 @@ func describeCommand(cmd *cobra.Command, name string) aiCommand {
 	if !cmd.Runnable() {
 		return info
 	}
-	info.Parameters = positionalParameters(cmd.Use)
+	path := strings.TrimPrefix(cmd.CommandPath(), rootCmd.Name()+" ")
+	info.Parameters = positionalParameters(path, cmd.Use)
 	addFlag := func(f *pflag.Flag) {
 		if f.Hidden || f.Name == "help" || f.Name == helpAIFlag {
 			return
@@ -151,7 +166,7 @@ func describeCommand(cmd *cobra.Command, name string) aiCommand {
 
 // positionalParameters derives the positional arguments from a Use line,
 // <name> is a required argument and [name] is an optional one
-func positionalParameters(use string) []aiParameter {
+func positionalParameters(path, use string) []aiParameter {
 	var params []aiParameter
 	for _, token := range strings.Fields(use)[1:] {
 		var required bool
@@ -164,23 +179,23 @@ func positionalParameters(use string) []aiParameter {
 			continue
 		}
 		name := token[1 : len(token)-1]
-		param := positionalArgs[name]
+		param := positionalArgs[path+"/"+name]
 		if param.Type == "" {
-			param = aiParameter{Type: "string", Description: "Positional argument " + name}
+			param = aiParameter{Type: "string", Description: undescribedArgPrefix + name}
 		}
 		param.Name = name
 		param.Required = required
+		param.Positional = true
 		params = append(params, param)
 	}
 	return params
 }
 
-// flagParameter describes a flag, the name carries the -- prefix
-// to tell it apart from a positional argument
+// flagParameter describes a flag, the name has no -- prefix (ecosystem convention)
 func flagParameter(f *pflag.Flag) aiParameter {
 	_, required := f.Annotations[cobra.BashCompOneRequiredFlag]
 	param := aiParameter{
-		Name:        "--" + f.Name,
+		Name:        f.Name,
 		Type:        flagType(f.Value.Type()),
 		Required:    required,
 		Description: f.Usage,
