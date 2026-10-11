@@ -145,6 +145,7 @@ Higher-level packages depend only on interfaces, never on platform-specific impl
 
 ## Documentation
 
+- [Changelog](CHANGELOG.md)
 - [Contributing guidelines](docs/contributing/)
 - [Architecture Decision Records](docs/adr/)
 - [Issue tracker](https://github.com/CassandraGargoyle/portunix-agent/issues) — long-form write-ups in [docs/issues/](docs/issues/)

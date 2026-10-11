@@ -32,6 +32,8 @@ This document defines the mandatory workflow for issue development in the portun
    - Implement minimal diffs with maximum impact
    - Add appropriate tests for new functionality
    - Document changes in code comments (English only)
+   - Add an entry to `CHANGELOG.md` under `## [Unreleased]` for every user-visible change
+     (see [Changelog Guidelines](CHANGELOG-GUIDELINES.md))
    - Commit frequently with descriptive messages
 
 3. **Pre-Testing Validation**
@@ -77,6 +79,7 @@ This document defines the mandatory workflow for issue development in the portun
 
 1. **Pre-Merge Validation**
    - Verify acceptance protocol exists and shows PASS status
+   - Verify `CHANGELOG.md` has an entry for the issue under `## [Unreleased]` (user-visible changes)
    - Ensure all tester recommendations are addressed
    - Rebase feature branch on current main if needed
 
@@ -97,6 +100,7 @@ This document defines the mandatory workflow for issue development in the portun
 - Issue must have defined acceptance criteria
 - Code must pass all automated tests
 - Feature branch must build successfully
+- User-visible change must have an entry in `CHANGELOG.md`
 - Tester must create acceptance protocol
 - Acceptance protocol must show PASS status
 - No merge to main without tester approval
@@ -142,12 +146,14 @@ This document defines the mandatory workflow for issue development in the portun
 - Never bypass testing phase
 - Never merge without tester approval
 - Maintain feature branch until approval received
+- Write the `CHANGELOG.md` entry on the feature branch
 
 ### Tester Responsibilities
 - Test within reasonable timeframe
 - Provide detailed acceptance protocol
 - Clearly communicate pass/fail status
 - Document all findings and recommendations
+- Check that the `CHANGELOG.md` entry exists and matches the delivered behavior
 
 ### Architect/Product Owner Responsibilities
 - Provide clear acceptance criteria

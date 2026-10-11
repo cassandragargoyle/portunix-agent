@@ -18,6 +18,22 @@ Zeptej se mě na:
 
 Ověř, že branch existuje a obsahuje commity.
 
+## KROK 1.5: Kontrola CHANGELOG.md
+
+Ověř, že branch přidává záznam do `CHANGELOG.md` pod `## [Unreleased]`:
+
+```bash
+git diff <cílová-větev>...HEAD -- CHANGELOG.md
+```
+
+- Záznam existuje → pokračuj.
+- Záznam chybí a změna je viditelná pro uživatele → navrhni text záznamu podle
+  `docs/contributing/CHANGELOG-GUIDELINES.md`, po schválení ho zapiš a commitni
+  (`docs(<issue-id>): update changelog`) ještě před merge.
+- Změna není viditelná pro uživatele (testy, interní refaktoring, archivace issue) → záznam není potřeba.
+
+**STOP** - Pokud záznam chybí, počkej na rozhodnutí uživatele.
+
 ## KROK 2: Merge a úklid
 
 > **Co je PR (Pull Request)?** Žádost o začlenění změn z feature branch do hlavní větve. Používá se pro code review v týmech. Pro solo vývoj lze mergovat přímo.
@@ -85,5 +101,6 @@ Zobraz shrnutí:
 
 - Merge provedený do větve: `<název>`
 - Feature branch smazána: ano/ne
+- Záznam v `CHANGELOG.md`: ano/není potřeba
 - Issue archivováno a zavřeno na GitHubu: ano/ne/přeskočeno
 - Další kroky (pokud jsou)

@@ -48,12 +48,17 @@ Zobraz git příkaz před jeho spuštěním.
 - NEPTEJ se na otázky, pokud to není skutečně nejednoznačné
 - Modifikuj pouze relevantní soubory
 - Dodržuj coding style projektu
+- Pokud je změna viditelná pro uživatele (příkaz, flag, MCP tool, veřejné Go API, oprava chování),
+  přidej záznam do `CHANGELOG.md` pod `## [Unreleased]` (sekce `### Added in Unreleased`,
+  `### Fixed in Unreleased`, `### Changed in Unreleased`) - anglicky, s `(Issue #N)`.
+  Pravidla: `docs/contributing/CHANGELOG-GUIDELINES.md`
 
 Na konci poskytni shrnutí:
 
 - Modifikované soubory
 - Přidané metody/třídy
 - Odstraněný kód
+- Záznam v `CHANGELOG.md` (nebo důvod, proč není potřeba)
 - Klíčová rozhodnutí
 
 Zeptej se mě, co chci:

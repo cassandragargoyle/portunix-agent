@@ -64,6 +64,14 @@ See docs/contributing/CODE-STYLE-*.md for language-specific guidelines
 - See [docs/contributing/ISSUE-MANAGEMENT.md](docs/contributing/ISSUE-MANAGEMENT.md); use `/create-issue` to create an issue
 - Common issue types: Configuration issues, build problems, compatibility issues
 
+### Changelog
+
+- `CHANGELOG.md` is kept current in the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format
+- Every user-visible change adds an entry under `## [Unreleased]` on its feature branch, before merge to `main`
+- Section headings carry the version: `### Added in X.Y.Z`, `### Fixed in X.Y.Z`, `### Changed in X.Y.Z`
+- The version bump (`/bump-version`) turns `[Unreleased]` into `## [X.Y.Z] - YYYY-MM-DD`; the version source is `plugin.json`
+- See [docs/contributing/CHANGELOG-GUIDELINES.md](docs/contributing/CHANGELOG-GUIDELINES.md)
+
 ### Team Communication
 
 - English is the primary language for all project communication (see [Multilingual Team Communication](docs/contributing/README.md#multilingual-team-communication))
