@@ -29,7 +29,7 @@ func init() {
 	// Define the flag here so cobra does not add the -v shorthand
 	rootCmd.Flags().Bool("version", false, "Print the ptx-agent version")
 	rootCmd.SetVersionTemplate(fmt.Sprintf(versionTemplate, "{{.Version}}"))
-	// Registered for the help text, Execute handles the flag before cobra runs
+	// Execute handles the flag before cobra validates the arguments
 	rootCmd.PersistentFlags().Bool(helpAIFlag, false, "Show machine-readable help in JSON format")
 
 	rootCmd.AddCommand(versionCmd)
@@ -42,7 +42,7 @@ func init() {
 
 // Execute runs the root command.
 func Execute() error {
-	if helpAIRequested(os.Args[1:]) {
+	if args := os.Args[1:]; helpAIRequested(args) && helpAIConfirmed(args) {
 		return printHelpAI(os.Stdout)
 	}
 	return rootCmd.Execute()

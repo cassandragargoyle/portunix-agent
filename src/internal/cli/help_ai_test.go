@@ -83,6 +83,56 @@ func TestHelpAIRequested(t *testing.T) {
 	}
 }
 
+func TestHelpAIConfirmed(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+		want bool
+	}{
+		{"flag only", []string{"--help-ai"}, true},
+		{"command group", []string{"files", "--help-ai"}, true},
+		{"missing positional argument", []string{"files", "list", "--help-ai"}, true},
+		{"missing required flag", []string{"files", "list", ".", "--help-ai"}, true},
+		{"flag before subcommand", []string{"--help-ai", "browser", "goto"}, true},
+		{"with help flag", []string{"--help", "--help-ai"}, true},
+		{"with version flag", []string{"--help-ai", "--version"}, true},
+		{"unknown command", []string{"nosuchcmd", "--help-ai"}, false},
+		{"unknown flag", []string{"--help-ai", "--bogus"}, false},
+		{"unknown flag of a subcommand", []string{"files", "list", "--bogus", "--help-ai"}, false},
+		{"value of another flag", []string{"files", "list", ".", "--allowed-dirs", "--help-ai"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Cleanup(func() {
+				resetFlags(rootCmd)
+				resetFlags(filesListCmd)
+			})
+			if got := helpAIConfirmed(tt.args); got != tt.want {
+				t.Errorf("helpAIConfirmed(%v) = %v, want %v", tt.args, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHelpAIConfirmedKeepsFlagValues(t *testing.T) {
+	t.Cleanup(func() { resetFlags(filesListCmd) })
+
+	// --help-ai is consumed as the value, cobra must be able to parse the flags again
+	args := []string{"files", "list", ".", "--allowed-dirs", "--help-ai", "--allowed-dirs", "/tmp"}
+	if helpAIConfirmed(args) {
+		t.Fatal("expected --help-ai to be read as a flag value")
+	}
+	if len(allowedDirs) != 0 {
+		t.Fatalf("expected allowed-dirs to be reset, got %v", allowedDirs)
+	}
+	if err := filesListCmd.ParseFlags(args[2:]); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(allowedDirs) != 2 {
+		t.Errorf("expected 2 allowed directories after the second parse, got %v", allowedDirs)
+	}
+}
+
 func TestHelpAITopLevelFields(t *testing.T) {
 	help := helpAIOutput(t)
 
@@ -107,6 +157,10 @@ func TestHelpAIListsAllCommands(t *testing.T) {
 	var walk func(cmd *cobra.Command, top *aiCommand, path string)
 	walk = func(cmd *cobra.Command, top *aiCommand, path string) {
 		for _, sub := range cmd.Commands() {
+			// cobra adds help and completion on the first Execute
+			if !describable(sub) {
+				continue
+			}
 			name := strings.TrimSpace(path + " " + sub.Name())
 			if top == nil {
 				info := findCommand(t, help.Commands, name)
@@ -159,12 +213,16 @@ func TestHelpAIParameters(t *testing.T) {
 	}
 	list := findCommand(t, files.Subcommands, "list")
 	path := findParameter(t, list, "path")
-	if path.Type != "string" || !path.Required || !path.Positional || path.Description != "Directory path to list" {
+	if path.Type != "string" || !path.Required || path.Description != "Directory path to list" {
 		t.Errorf("unexpected path parameter: %+v", path)
+	}
+	// The usage line tells the positional arguments from the flags
+	if len(list.Examples) != 1 || list.Examples[0] != "ptx-agent files list <path>" {
+		t.Errorf("unexpected examples: %v", list.Examples)
 	}
 	// Persistent flag of the parent command
 	allowed := findParameter(t, list, "allowed-dirs")
-	if allowed.Type != "array" || !allowed.Required || allowed.Default != "" || allowed.Positional {
+	if allowed.Type != "array" || !allowed.Required || allowed.Default != "" {
 		t.Errorf("unexpected --allowed-dirs parameter: %+v", allowed)
 	}
 

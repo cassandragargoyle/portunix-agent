@@ -33,18 +33,18 @@ type aiCommand struct {
 	Brief       string        `json:"brief"`
 	Description string        `json:"description,omitempty"`
 	Parameters  []aiParameter `json:"parameters,omitempty"`
+	Examples    []string      `json:"examples,omitempty"`
 	Subcommands []aiCommand   `json:"subcommands,omitempty"`
 }
 
-// aiParameter describes a positional argument or a flag,
-// Positional tells the two apart because flag names carry no -- prefix
+// aiParameter describes a positional argument or a flag, flag names carry no -- prefix.
+// Positional arguments come first, in the order of the usage line in aiCommand.Examples
 type aiParameter struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
 	Required    bool   `json:"required"`
 	Description string `json:"description"`
 	Default     string `json:"default,omitempty"`
-	Positional  bool   `json:"positional,omitempty"`
 }
 
 // positionalArgs describes the positional arguments, the key is the command path
@@ -78,8 +78,8 @@ var positionalArgs = map[string]aiParameter{
 const undescribedArgPrefix = "Positional argument "
 
 // helpAIRequested reports whether the arguments contain the --help-ai flag.
-// The check runs before cobra, so the flag works at any position and
-// no argument validation or subcommand runs
+// It is a cheap check that keeps cobra untouched for all other invocations,
+// helpAIConfirmed decides whether the flag is really set
 func helpAIRequested(args []string) bool {
 	for _, arg := range args {
 		if arg == "--" {
@@ -94,6 +94,39 @@ func helpAIRequested(args []string) bool {
 		}
 	}
 	return false
+}
+
+// helpAIConfirmed reports whether cobra accepts the command line and reads --help-ai
+// as a set flag. It works like --help: an unknown command or an unknown flag stays
+// an error, but the positional arguments and the required flags are not validated.
+// When it returns false the caller runs cobra, which reports the error
+func helpAIConfirmed(args []string) bool {
+	cmd, flagArgs, err := rootCmd.Find(args)
+	if err != nil {
+		return false
+	}
+	cmd.InitDefaultHelpFlag()
+	if err := cmd.ParseFlags(flagArgs); err != nil {
+		return false
+	}
+	if enabled, err := cmd.Flags().GetBool(helpAIFlag); err == nil && enabled {
+		return true
+	}
+	// --help-ai was the value of another flag, cobra parses the flags again
+	resetFlags(cmd)
+	return false
+}
+
+// resetFlags returns the changed flags of cmd to their defaults
+func resetFlags(cmd *cobra.Command) {
+	cmd.Flags().Visit(func(f *pflag.Flag) {
+		if slice, ok := f.Value.(pflag.SliceValue); ok {
+			_ = slice.Replace(nil)
+		} else {
+			_ = f.Value.Set(f.DefValue)
+		}
+		f.Changed = false
+	})
 }
 
 // printHelpAI writes the command tree as a single JSON document
@@ -151,6 +184,9 @@ func describeCommand(cmd *cobra.Command, name string) aiCommand {
 	if !cmd.Runnable() {
 		return info
 	}
+	// The usage line shows which parameters are positional arguments
+	_, args, _ := strings.Cut(cmd.Use, " ")
+	info.Examples = []string{strings.TrimSpace(cmd.CommandPath() + " " + args)}
 	path := strings.TrimPrefix(cmd.CommandPath(), rootCmd.Name()+" ")
 	info.Parameters = positionalParameters(path, cmd.Use)
 	addFlag := func(f *pflag.Flag) {
@@ -185,7 +221,6 @@ func positionalParameters(path, use string) []aiParameter {
 		}
 		param.Name = name
 		param.Required = required
-		param.Positional = true
 		params = append(params, param)
 	}
 	return params
