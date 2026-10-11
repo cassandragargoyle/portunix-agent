@@ -254,5 +254,9 @@ Recommended, not required:
 1. Add the temporary failure injection tests (finding 1) to the repository.
 2. Create issues for findings 2 and 3.
 
+**Merge decision**: The project owner (zdendaku) approved the merge to `main` on 2026-10-11
+without waiting for the CI run, as an exception to the condition above. The CI run of the
+commit stays open as follow-up work.
+
 **Date**: 2026-10-11
 **Tester signature**: zdendaku (QA/Test Engineer)
