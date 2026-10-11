@@ -1,6 +1,6 @@
 # Issue #16: uinput backend drops characters that need a dead key without an error
 
-**Status**: Open
+**Status**: ✅ Implemented
 **Priority**: Medium
 **Type**: Bug
 **Created**: 2026-10-11
@@ -75,3 +75,7 @@ Two steps. The first one is the minimum.
 - **Manual test on Linux**: layout `cz`, uinput backend, type the text above into a focused
   window and compare the result. `xev` can be used as the receiver.
 - uinput needs write access to `/dev/uinput`.
+
+---
+
+**Closed**: 2026-10-11 (implemented in `cf147d5`)
