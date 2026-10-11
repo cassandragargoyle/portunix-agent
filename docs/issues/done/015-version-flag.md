@@ -2,7 +2,7 @@
 
 **Type**: enhancement
 **Priority**: medium
-**Status**: Open
+**Status**: ✅ Implemented
 **GitHub**: #15
 **Branch**: `feature/015-version-flag`
 **Labels**: enhancement, cli, build
@@ -146,14 +146,15 @@ Scope: CLI output of the version, build integration, MCP server info. Platforms:
 
 ## Acceptance Criteria
 
-- [ ] `ptx-agent --version` prints `ptx-agent version <version>` to stdout and exits with 0
-- [ ] `ptx-agent version` prints the same output and exits with 0
-- [ ] `make build` embeds the version from `plugin.json`
-- [ ] `make dist` embeds the release version in all platform binaries
-- [ ] A build without `-ldflags` reports `dev`
-- [ ] MCP `initialize` response uses the same version value (no hardcoded string)
-- [ ] Unit tests cover the flag and the subcommand
-- [ ] Verified on Linux and Windows
+- [x] `ptx-agent --version` prints `ptx-agent version <version>` to stdout and exits with 0
+- [x] `ptx-agent version` prints the same output and exits with 0
+- [x] `make build` embeds the version from `plugin.json`
+- [x] `make dist` embeds the release version in all platform binaries
+- [x] A build without `-ldflags` reports `dev`
+- [x] MCP `initialize` response uses the same version value (no hardcoded string)
+- [x] Unit tests cover the flag and the subcommand
+- [ ] Verified on Linux and Windows *(Linux verified; Windows only in CI with `go run`, see
+      [acceptance protocol](../../testing/acceptance-015.md))*
 
 ## References
 
@@ -167,4 +168,5 @@ Scope: CLI output of the version, build integration, MCP server info. Platforms:
 ---
 
 **Created**: 2026-10-10
+**Closed**: 2026-10-11 (implemented in `fd4a389`)
 **Author**: Tester
