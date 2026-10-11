@@ -1,6 +1,6 @@
 # Issue #17: xdotool backend reports success for an unknown key name
 
-**Status**: Open
+**Status**: ✅ Implemented
 **Priority**: Low
 **Type**: Bug
 **Created**: 2026-10-11
@@ -58,3 +58,7 @@ bad combination.
 - **Manual test on Linux (X11)**: without access to `/dev/uinput`, run
   `ptx-agent keyboard key ctrl+nosuchkey` and check the error and the exit code. Run
   `ptx-agent keyboard key ctrl+s` and check that it still works.
+
+---
+
+**Closed**: 2026-10-11 (implemented in `7779b4b`)
