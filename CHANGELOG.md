@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added in Unreleased
+## [0.1.1] - 2026-10-11
+
+### Added in 0.1.1
 
 - **Public keyboard package** (Issue #14) — the keyboard implementation moved from
   `src/internal/keyboard/` to `src/pkg/keyboard/`, so that another Go module (for example
@@ -23,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   assistants can discover the CLI without parsing the help text. The output follows the Portunix
   ecosystem schema and is generated from the command tree.
 
-### Fixed in Unreleased
+### Fixed in 0.1.1
 
 - **uinput backend lost characters without an error** (Issue #16) — `Type` skipped a character that
   the active keyboard layout has no key for, and still reported success. Characters that the layout
@@ -39,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `f4`, `enter`). X keysym names outside this set (for example `Print`, `XF86AudioMute`) are no
   longer passed to xdotool and return an error.
 
-### Changed in Unreleased
+### Changed in 0.1.1
 
 - **GitHub-first issue tracking** — GitHub issues are the list of record and assign the issue numbers;
   each issue links to its long-form write-up in `docs/issues/NNN-*.md` (archived in
