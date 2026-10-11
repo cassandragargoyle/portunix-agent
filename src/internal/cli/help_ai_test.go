@@ -164,7 +164,7 @@ func TestHelpAIParameters(t *testing.T) {
 	}
 	// Persistent flag of the parent command
 	allowed := findParameter(t, list, "allowed-dirs")
-	if allowed.Type != "array" || allowed.Required || allowed.Default != "" || allowed.Positional {
+	if allowed.Type != "array" || !allowed.Required || allowed.Default != "" || allowed.Positional {
 		t.Errorf("unexpected --allowed-dirs parameter: %+v", allowed)
 	}
 
@@ -224,6 +224,29 @@ func TestHelpAIParametersAreComplete(t *testing.T) {
 		}
 	}
 	check("", help.Commands)
+}
+
+func TestHelpAIPositionalArgsAreUsed(t *testing.T) {
+	for key := range positionalArgs {
+		path, name, _ := strings.Cut(key, "/")
+		words := strings.Fields(path)
+		// Some commands exist on one platform only
+		if top, _, err := rootCmd.Find(words[:1]); err != nil || top == rootCmd {
+			continue
+		}
+		cmd, _, err := rootCmd.Find(words)
+		if err != nil || cmd.CommandPath() != rootCmd.Name()+" "+path {
+			t.Errorf("positionalArgs entry %q names an unknown command", key)
+			continue
+		}
+		used := false
+		for _, p := range positionalParameters(path, cmd.Use) {
+			used = used || p.Name == name
+		}
+		if !used {
+			t.Errorf("positionalArgs entry %q is not in the usage %q", key, cmd.Use)
+		}
+	}
 }
 
 func TestHelpAIFlagIsPersistent(t *testing.T) {

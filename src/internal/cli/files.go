@@ -88,6 +88,7 @@ func init() {
 	// Register --allowed-dirs flag on the files command, inherited by subcommands
 	filesCmd.PersistentFlags().StringSliceVar(&allowedDirs, "allowed-dirs", nil,
 		"comma-separated list of allowed directory paths (required)")
+	_ = filesCmd.MarkPersistentFlagRequired("allowed-dirs")
 
 	filesCmd.AddCommand(filesListCmd)
 	filesCmd.AddCommand(filesInfoCmd)
