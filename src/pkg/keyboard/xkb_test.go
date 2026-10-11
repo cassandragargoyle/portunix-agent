@@ -10,6 +10,8 @@ package keyboard
 import (
 	"os"
 	"path/filepath"
+	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -438,8 +440,8 @@ func TestKeysForChar_Fallback(t *testing.T) {
 	if keys == nil {
 		t.Fatal("expected keys for 'a' from fallback")
 	}
-	if len(keys) != 1 || keys[0] != keyA {
-		t.Errorf("got %v, want [%d]", keys, keyA)
+	if len(keys) != 1 || len(keys[0]) != 1 || keys[0][0] != keyA {
+		t.Errorf("got %v, want [[%d]]", keys, keyA)
 	}
 
 	// Shift+symbol from fallback
@@ -447,8 +449,8 @@ func TestKeysForChar_Fallback(t *testing.T) {
 	if keys == nil {
 		t.Fatal("expected keys for '!' from fallback")
 	}
-	if len(keys) != 2 || keys[0] != keyLeftShift || keys[1] != key1 {
-		t.Errorf("got %v, want [%d, %d]", keys, keyLeftShift, key1)
+	if len(keys) != 1 || len(keys[0]) != 2 || keys[0][0] != keyLeftShift || keys[0][1] != key1 {
+		t.Errorf("got %v, want [[%d, %d]]", keys, keyLeftShift, key1)
 	}
 }
 
@@ -463,8 +465,8 @@ func TestKeysForChar_ReverseMapOverride(t *testing.T) {
 	if keys == nil {
 		t.Fatal("expected keys for 'a'")
 	}
-	if len(keys) != 1 || keys[0] != 99 {
-		t.Errorf("got %v, want [99]", keys)
+	if len(keys) != 1 || len(keys[0]) != 1 || keys[0][0] != 99 {
+		t.Errorf("got %v, want [[99]]", keys)
 	}
 }
 
@@ -498,6 +500,133 @@ func TestParseKeyLevels(t *testing.T) {
 				if entry.Levels[i] != tt.levels[i] {
 					t.Errorf("level[%d]: got %q, want %q", i, entry.Levels[i], tt.levels[i])
 				}
+			}
+		})
+	}
+}
+
+// recordingTyper records the key strokes instead of sending them.
+type recordingTyper struct {
+	strokes [][]uint16
+}
+
+func (r *recordingTyper) typeKeys(keys []uint16) error {
+	r.strokes = append(r.strokes, keys)
+	return nil
+}
+
+// newCzBackend returns a uinput backend with the cz(winkeys) fixture layout.
+func newCzBackend(t *testing.T) *UinputBackend {
+	t.Helper()
+	dir := setupTestXKB(t)
+	origBase := xkbBasePath
+	setXKBBasePath(dir)
+	t.Cleanup(func() { setXKBBasePath(origBase) })
+
+	rmap, err := buildReverseMap("cz", "winkeys")
+	if err != nil {
+		t.Fatalf("buildReverseMap: %v", err)
+	}
+	return &UinputBackend{reverseMap: rmap}
+}
+
+func TestDeadKeyCompositions_Unique(t *testing.T) {
+	seen := make(map[rune]string)
+	for name, value := range deadKeyCompositions {
+		pairs := []rune(value)
+		if len(pairs)%2 != 0 {
+			t.Errorf("%s: odd number of runes", name)
+			continue
+		}
+		for i := 1; i < len(pairs); i += 2 {
+			if other, ok := seen[pairs[i]]; ok {
+				t.Errorf("%q is composed by both %s and %s", string(pairs[i]), other, name)
+			}
+			seen[pairs[i]] = name
+		}
+	}
+}
+
+func TestKeysForChar_DeadKey(t *testing.T) {
+	b := newCzBackend(t)
+
+	// AE12 = 13: dead_acute on level 0, dead_caron on level 1
+	tests := []struct {
+		name string
+		ch   rune
+		want [][]uint16
+	}{
+		{"tcaron", 'ť', [][]uint16{{keyLeftShift, 13}, {20}}},
+		{"ncaron", 'ň', [][]uint16{{keyLeftShift, 13}, {49}}},
+		{"dcaron", 'ď', [][]uint16{{keyLeftShift, 13}, {32}}},
+		{"oacute", 'ó', [][]uint16{{13}, {24}}},
+		{"Tcaron", 'Ť', [][]uint16{{keyLeftShift, 13}, {keyLeftShift, 20}}},
+		// Characters with their own key stay direct
+		{"ecaron direct", 'ě', [][]uint16{{3}}},
+		{"iacute direct", 'í', [][]uint16{{10}}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := b.keysForChar(tt.ch)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("got %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTypeOn_DeadKeyText(t *testing.T) {
+	b := newCzBackend(t)
+	rec := &recordingTyper{}
+
+	text := "Příliš žluťoučký kůň úpěl ďábelské ódy"
+	if err := b.typeOn(rec, text, 0, false); err != nil {
+		t.Fatalf("typeOn: %v", err)
+	}
+
+	// One stroke per character, plus the dead key of the composed characters
+	want := 0
+	for _, ch := range text {
+		want += len(b.keysForChar(ch))
+	}
+	if len(rec.strokes) != want {
+		t.Errorf("got %d strokes, want %d", len(rec.strokes), want)
+	}
+	if min := len([]rune(text)) + 4; len(rec.strokes) < min {
+		t.Errorf("got %d strokes, want at least %d", len(rec.strokes), min)
+	}
+}
+
+func TestTypeOn_UnmappedCharacter(t *testing.T) {
+	b := newCzBackend(t)
+
+	tests := []struct {
+		name     string
+		text     string
+		ch       string
+		position string
+	}{
+		{"emoji", "ahoj \U0001F642 a", "\U0001F642", "position 6"},
+		{"other alphabet", "abc\u0436", "\u0436", "position 4"},
+		{"first character", "\u4E2D", "\u4E2D", "position 1"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rec := &recordingTyper{}
+			err := b.typeOn(rec, tt.text, 0, false)
+			if err == nil {
+				t.Fatal("expected an error for an unmapped character")
+			}
+			if !strings.Contains(err.Error(), tt.ch) {
+				t.Errorf("error %q does not name the character %q", err, tt.ch)
+			}
+			if !strings.Contains(err.Error(), tt.position) {
+				t.Errorf("error %q does not contain %q", err, tt.position)
+			}
+			if len(rec.strokes) != 0 {
+				t.Errorf("sent %d strokes, want none", len(rec.strokes))
 			}
 		})
 	}

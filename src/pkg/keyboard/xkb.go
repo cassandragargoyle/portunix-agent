@@ -19,6 +19,8 @@ import (
 type KeyMapping struct {
 	Keycode   uint16
 	Modifiers []uint16
+	// Dead is the dead key to type before this key, nil for a direct mapping
+	Dead *KeyMapping
 }
 
 // ReverseMap maps Unicode runes to the key sequence needed to type them
@@ -111,6 +113,7 @@ func buildReverseMap(layout, variant string) (ReverseMap, error) {
 	// Build reverse map: for each key and level, map the resulting rune
 	// to its keycode + modifiers
 	rmap := make(ReverseMap)
+	deadKeys := make(map[string]KeyMapping)
 
 	for keyName, entry := range symbols {
 		linuxCode, ok := codes[keyName]
@@ -120,6 +123,14 @@ func buildReverseMap(layout, variant string) (ReverseMap, error) {
 
 		for level, keysymName := range entry.Levels {
 			if keysymName == "" {
+				continue
+			}
+
+			if _, isDead := deadKeyCompositions[keysymName]; isDead {
+				mapping := KeyMapping{Keycode: linuxCode, Modifiers: buildModifiers(level)}
+				if existing, exists := deadKeys[keysymName]; !exists || cheaperMapping(mapping, existing) {
+					deadKeys[keysymName] = mapping
+				}
 				continue
 			}
 
@@ -144,7 +155,46 @@ func buildReverseMap(layout, variant string) (ReverseMap, error) {
 		}
 	}
 
+	addDeadKeySequences(rmap, deadKeys)
+
 	return rmap, nil
+}
+
+// cheaperMapping reports whether a needs fewer modifiers than b.
+// The keycode decides a tie, so that the choice does not depend on map order
+func cheaperMapping(a, b KeyMapping) bool {
+	if len(a.Modifiers) != len(b.Modifiers) {
+		return len(a.Modifiers) < len(b.Modifiers)
+	}
+	return a.Keycode < b.Keycode
+}
+
+// addDeadKeySequences adds the characters that the layout produces with a
+// dead key and a base letter. A character with a direct mapping is not changed
+func addDeadKeySequences(rmap ReverseMap, deadKeys map[string]KeyMapping) {
+	composed := make(ReverseMap)
+
+	for keysymName, dead := range deadKeys {
+		pairs := []rune(deadKeyCompositions[keysymName])
+		for i := 0; i+1 < len(pairs); i += 2 {
+			base, ok := rmap[pairs[i]]
+			if !ok {
+				continue
+			}
+			if _, direct := rmap[pairs[i+1]]; direct {
+				continue
+			}
+			composed[pairs[i+1]] = KeyMapping{
+				Keycode:   base.Keycode,
+				Modifiers: base.Modifiers,
+				Dead:      &dead,
+			}
+		}
+	}
+
+	for ch, mapping := range composed {
+		rmap[ch] = mapping
+	}
 }
 
 // modifiersForLevel returns the number of modifier keys for a given level

@@ -79,6 +79,11 @@ func NewUinputBackend() (*UinputBackend, error) {
 func (b *UinputBackend) Name() string { return "uinput" }
 
 func (b *UinputBackend) Type(text string, delayMs int, noIndent bool) error {
+	// Reject the text before the virtual device is created
+	if _, err := b.strokesForText(text); err != nil {
+		return err
+	}
+
 	dev, err := b.createDevice()
 	if err != nil {
 		return err
@@ -117,17 +122,28 @@ func (s *uinputSession) Close() error {
 	return nil
 }
 
-// typeOn types the text on an already created device.
-func (b *UinputBackend) typeOn(dev *uinputDevice, text string, delayMs int, noIndent bool) error {
-	for _, ch := range text {
-		keys := b.keysForChar(ch)
-		if keys == nil {
-			continue // skip unmapped characters
-		}
+// keyTyper presses and releases one set of keys.
+type keyTyper interface {
+	typeKeys(keys []uint16) error
+}
 
-		if err := dev.typeKeys(keys); err != nil {
-			return fmt.Errorf("failed to type character %q: %w", string(ch), err)
+// typeOn types the text on an already created device.
+// The whole text is resolved first, so that no key is sent when a
+// character has no mapping
+func (b *UinputBackend) typeOn(dev keyTyper, text string, delayMs int, noIndent bool) error {
+	strokes, err := b.strokesForText(text)
+	if err != nil {
+		return err
+	}
+
+	i := 0
+	for _, ch := range text {
+		for _, keys := range strokes[i] {
+			if err := dev.typeKeys(keys); err != nil {
+				return fmt.Errorf("failed to type character %q: %w", string(ch), err)
+			}
 		}
+		i++
 
 		// After newline, send Home to reset cursor position so that
 		// editor auto-indent does not stack with typed whitespace
@@ -143,22 +159,47 @@ func (b *UinputBackend) typeOn(dev *uinputDevice, text string, delayMs int, noIn
 	return nil
 }
 
-// keysForChar resolves a character to keycodes using the XKB reverse map
-// first, then falls back to the hardcoded US layout mapping.
-func (b *UinputBackend) keysForChar(ch rune) []uint16 {
+// strokesForText resolves every character of the text to its key strokes.
+// It returns an error for the first character that has no mapping.
+// The position in the error counts characters and starts at 1
+func (b *UinputBackend) strokesForText(text string) ([][][]uint16, error) {
+	var strokes [][][]uint16
+	for _, ch := range text {
+		keys := b.keysForChar(ch)
+		if keys == nil {
+			return nil, fmt.Errorf("cannot type character %q (%U) at position %d: no key mapping in the active keyboard layout",
+				string(ch), ch, len(strokes)+1)
+		}
+		strokes = append(strokes, keys)
+	}
+	return strokes, nil
+}
+
+// keysForChar resolves a character to its key strokes using the XKB reverse
+// map first, then falls back to the hardcoded US layout mapping.
+// A character that needs a dead key has two strokes, all others have one
+func (b *UinputBackend) keysForChar(ch rune) [][]uint16 {
 	if b.reverseMap != nil {
 		if m, ok := b.reverseMap[ch]; ok {
-			keys := make([]uint16, 0, len(m.Modifiers)+1)
-			keys = append(keys, m.Modifiers...)
-			keys = append(keys, m.Keycode)
-			return keys
+			if m.Dead != nil {
+				return [][]uint16{mappingKeys(*m.Dead), mappingKeys(m)}
+			}
+			return [][]uint16{mappingKeys(m)}
 		}
 	}
 
 	if keys, ok := charToKeys(ch); ok {
-		return keys
+		return [][]uint16{keys}
 	}
 	return nil
+}
+
+// mappingKeys returns the modifiers and the key of one stroke.
+func mappingKeys(m KeyMapping) []uint16 {
+	keys := make([]uint16, 0, len(m.Modifiers)+1)
+	keys = append(keys, m.Modifiers...)
+	keys = append(keys, m.Keycode)
+	return keys
 }
 
 func (b *UinputBackend) Key(combo string) error {

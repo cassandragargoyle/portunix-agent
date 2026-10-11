@@ -8,7 +8,8 @@
 package keyboard
 
 // keysymToRune maps XKB keysym names to Unicode runes.
-// Dead keys and NoSymbol map to 0 (ignored during reverse map building).
+// Dead keys and NoSymbol map to 0, they produce no character of their own.
+// Dead key sequences come from deadKeyCompositions.
 var keysymToRune = map[string]rune{
 	// Special
 	"NoSymbol": 0,
@@ -331,4 +332,22 @@ func resolveKeysym(name string) (rune, bool) {
 	}
 
 	return 0, false
+}
+
+// deadKeyCompositions maps a dead key keysym to the characters it composes.
+// Each value is a list of rune pairs: the base letter and the composed result
+var deadKeyCompositions = map[string]string{
+	"dead_acute":       "aáAÁcćCĆeéEÉiíIÍlĺLĹnńNŃoóOÓrŕRŔsśSŚuúUÚyýYÝzźZŹ",
+	"dead_grave":       "aàAÀeèEÈiìIÌoòOÒuùUÙ",
+	"dead_circumflex":  "aâAÂcĉCĈeêEÊgĝGĜhĥHĤiîIÎjĵJĴoôOÔsŝSŜuûUÛwŵWŴyŷYŶ",
+	"dead_tilde":       "aãAÃnñNÑoõOÕ",
+	"dead_diaeresis":   "aäAÄeëEËiïIÏoöOÖuüUÜyÿYŸ",
+	"dead_caron":       "cčCČdďDĎeěEĚlľLĽnňNŇrřRŘsšSŠtťTŤzžZŽ",
+	"dead_breve":       "aăAĂgğGĞuŭUŬ",
+	"dead_ogonek":      "aąAĄeęEĘiįIĮuųUŲ",
+	"dead_cedilla":     "cçCÇsşSŞtţTŢ",
+	"dead_macron":      "aāAĀeēEĒiīIĪoōOŌuūUŪ",
+	"dead_abovering":   "aåAÅuůUŮ",
+	"dead_abovedot":    "cċCĊeėEĖgġGĠzżZŻ",
+	"dead_doubleacute": "oőOŐuűUŰ",
 }

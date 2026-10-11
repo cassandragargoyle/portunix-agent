@@ -23,6 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   assistants can discover the CLI without parsing the help text. The output follows the Portunix
   ecosystem schema and is generated from the command tree.
 
+### Fixed in Unreleased
+
+- **uinput backend lost characters without an error** (Issue #16) — `Type` skipped a character that
+  the active keyboard layout has no key for, and still reported success. Characters that the layout
+  produces with a dead key and a base letter (for example `ť`, `ň`, `ď`, `ó` on the `cz` layout) are
+  now typed as a dead key sequence. A character that the layout cannot produce at all makes `Type`
+  return an error that names the character and its position, and no key is sent. This applies to
+  `Controller.Type` and to `Session.Type`.
+
 ### Changed in Unreleased
 
 - **GitHub-first issue tracking** — GitHub issues are the list of record and assign the issue numbers;
