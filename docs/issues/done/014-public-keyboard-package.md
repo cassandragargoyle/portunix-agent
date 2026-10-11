@@ -2,7 +2,7 @@
 
 **Type**: enhancement
 **Priority**: high
-**Status**: Open
+**Status**: ✅ Implemented
 **GitHub**: #14
 **Branch**: `feature/014-public-keyboard-package`
 **Labels**: enhancement, keyboard, library
@@ -93,18 +93,20 @@ uses a `replace` directive that points to a local checkout of this repository.
 
 ## Acceptance Criteria
 
-- [ ] `src/internal/keyboard/` does not exist. The package is in `src/pkg/keyboard/`.
-- [ ] Another Go module can import the package (verified with a `replace` directive from
+- [x] `src/internal/keyboard/` does not exist. The package is in `src/pkg/keyboard/`.
+- [x] Another Go module can import the package (verified with a `replace` directive from
       `portunix-archon`).
-- [ ] `Controller.Open()` returns a `Session` with `Type`, `Key`, and `Close`.
+- [x] `Controller.Open()` returns a `Session` with `Type`, `Key`, and `Close`.
 - [ ] With the uinput backend, a session with N actions creates exactly one virtual device.
-- [ ] `Controller.Type` and `Controller.Key` behave as before.
-- [ ] `ptx-agent keyboard type`, `ptx-agent keyboard key`, `ptx-agent keyboard paste`, scenarios,
+      *(verified with a fake backend; the real uinput device is not verified, see
+      [acceptance protocol](../../testing/acceptance-014.md))*
+- [x] `Controller.Type` and `Controller.Key` behave as before.
+- [x] `ptx-agent keyboard type`, `ptx-agent keyboard key`, `ptx-agent keyboard paste`, scenarios,
       and the MCP keyboard tools work as before.
-- [ ] Unit tests cover the session with a fake backend: delegation, validation, use after
+- [x] Unit tests cover the session with a fake backend: delegation, validation, use after
       `Close`, double `Close`.
-- [ ] `make build`, `make test`, and `make lint` pass.
-- [ ] Requirement 3: the module path is aligned, or the decision to do it later is recorded here.
+- [x] `make build`, `make test`, and `make lint` pass.
+- [x] Requirement 3: the module path is aligned, or the decision to do it later is recorded here.
 
 ## Testing
 
@@ -140,4 +142,5 @@ uses a `replace` directive that points to a local checkout of this repository.
 ---
 
 **Created**: 2026-10-10
+**Closed**: 2026-10-11 (implemented in `2de82b5`)
 **Author**: Developer (portunix-archon)
