@@ -8,6 +8,7 @@ package cli
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/CassandraGargoyle/portunix-agent/internal/version"
 	"github.com/spf13/cobra"
@@ -28,6 +29,8 @@ func init() {
 	// Define the flag here so cobra does not add the -v shorthand
 	rootCmd.Flags().Bool("version", false, "Print the ptx-agent version")
 	rootCmd.SetVersionTemplate(fmt.Sprintf(versionTemplate, "{{.Version}}"))
+	// Registered for the help text, Execute handles the flag before cobra runs
+	rootCmd.PersistentFlags().Bool(helpAIFlag, false, "Show machine-readable help in JSON format")
 
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(filesCmd)
@@ -39,5 +42,8 @@ func init() {
 
 // Execute runs the root command.
 func Execute() error {
+	if helpAIRequested(os.Args[1:]) {
+		return printHelpAI(os.Stdout)
+	}
 	return rootCmd.Execute()
 }

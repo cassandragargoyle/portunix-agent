@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`--version` flag and `version` subcommand** (Issue #15) — `ptx-agent --version` and
   `ptx-agent version` print `ptx-agent version <version>`. The build takes the version from
   `plugin.json`; a build without it reports `dev`.
+- **`--help-ai` flag** (Issue #12) — `ptx-agent --help-ai` prints a JSON description of all commands,
+  their arguments, and their flags (name, type, required, default, description), so that AI
+  assistants can discover the CLI without parsing the help text. The output follows the Portunix
+  ecosystem schema and is generated from the command tree.
 
 ### Changed in Unreleased
 
