@@ -85,6 +85,40 @@ func (b *UinputBackend) Type(text string, delayMs int, noIndent bool) error {
 	}
 	defer dev.destroy()
 
+	return b.typeOn(dev, text, delayMs, noIndent)
+}
+
+// OpenSession creates the virtual device once and keeps it open until
+// the returned session is closed
+func (b *UinputBackend) OpenSession() (Session, error) {
+	dev, err := b.createDevice()
+	if err != nil {
+		return nil, err
+	}
+	return &uinputSession{backend: b, dev: dev}, nil
+}
+
+// uinputSession sends all actions through one virtual device.
+type uinputSession struct {
+	backend *UinputBackend
+	dev     *uinputDevice
+}
+
+func (s *uinputSession) Type(text string, delayMs int, noIndent bool) error {
+	return s.backend.typeOn(s.dev, text, delayMs, noIndent)
+}
+
+func (s *uinputSession) Key(combo string) error {
+	return s.backend.keyOn(s.dev, combo)
+}
+
+func (s *uinputSession) Close() error {
+	s.dev.destroy()
+	return nil
+}
+
+// typeOn types the text on an already created device.
+func (b *UinputBackend) typeOn(dev *uinputDevice, text string, delayMs int, noIndent bool) error {
 	for _, ch := range text {
 		keys := b.keysForChar(ch)
 		if keys == nil {
@@ -134,6 +168,11 @@ func (b *UinputBackend) Key(combo string) error {
 	}
 	defer dev.destroy()
 
+	return b.keyOn(dev, combo)
+}
+
+// keyOn sends the key combination on an already created device.
+func (b *UinputBackend) keyOn(dev *uinputDevice, combo string) error {
 	keys, err := comboToKeys(combo)
 	if err != nil {
 		return err

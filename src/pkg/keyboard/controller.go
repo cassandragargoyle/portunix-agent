@@ -46,21 +46,48 @@ func NewControllerWithBackend(b Backend) *Controller {
 // When noIndent is true, a Home key is sent after each newline to reset cursor
 // position, preventing auto-indent from stacking with typed whitespace.
 func (c *Controller) Type(text string, delayMs int, noIndent bool) error {
-	if text == "" {
-		return fmt.Errorf("text cannot be empty")
+	delayMs, err := checkType(text, delayMs)
+	if err != nil {
+		return err
 	}
-	if delayMs <= 0 {
-		delayMs = DefaultTypingDelay
+	s, err := c.Open()
+	if err != nil {
+		return err
 	}
-	return c.backend.Type(text, delayMs, noIndent)
+	defer s.Close()
+	return s.Type(text, delayMs, noIndent)
 }
 
 // Key sends a key combination to the currently focused window.
 func (c *Controller) Key(combo string) error {
+	if err := checkKey(combo); err != nil {
+		return err
+	}
+	s, err := c.Open()
+	if err != nil {
+		return err
+	}
+	defer s.Close()
+	return s.Key(combo)
+}
+
+// checkType validates the text and applies the default typing delay.
+func checkType(text string, delayMs int) (int, error) {
+	if text == "" {
+		return 0, fmt.Errorf("text cannot be empty")
+	}
+	if delayMs <= 0 {
+		delayMs = DefaultTypingDelay
+	}
+	return delayMs, nil
+}
+
+// checkKey validates the key combination.
+func checkKey(combo string) error {
 	if combo == "" {
 		return fmt.Errorf("key combination cannot be empty")
 	}
-	return c.backend.Key(combo)
+	return nil
 }
 
 // BackendName returns the name of the active backend.

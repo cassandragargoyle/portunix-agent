@@ -13,8 +13,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/CassandraGargoyle/portunix-agent/internal/keyboard"
 	"github.com/CassandraGargoyle/portunix-agent/internal/scenario"
+	"github.com/CassandraGargoyle/portunix-agent/pkg/keyboard"
 	"github.com/spf13/cobra"
 )
 

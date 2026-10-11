@@ -10,8 +10,8 @@ package mcp
 import (
 	"fmt"
 
-	"github.com/CassandraGargoyle/portunix-agent/internal/keyboard"
 	"github.com/CassandraGargoyle/portunix-agent/internal/windows"
+	"github.com/CassandraGargoyle/portunix-agent/pkg/keyboard"
 )
 
 // registerPlatformHandlers registers tool handlers that depend on

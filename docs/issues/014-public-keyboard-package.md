@@ -120,6 +120,17 @@ uses a `replace` directive that points to a local checkout of this repository.
 - Keyboard simulation on Windows.
 - Moving other packages out of `internal/`.
 
+## Decisions
+
+- **Requirement 3 is delivered later** (decided 2026-10-11). The module path stays
+  `github.com/CassandraGargoyle/portunix-agent` for now. `portunix-archon` uses a `replace`
+  directive that points to `<checkout>/src` and imports
+  `github.com/CassandraGargoyle/portunix-agent/pkg/keyboard`. Option A is the preferred way to
+  align the module path. The import path for consumers then changes to `.../src/pkg/keyboard`.
+- **Requirement 4 (optional) is not part of this delivery.**
+- A backend provides its own session through the optional `SessionBackend` interface
+  (`OpenSession() (Session, error)`). The uinput backend implements it.
+
 ## References
 
 - `src/internal/keyboard/controller.go` — `Backend` interface and `Controller`

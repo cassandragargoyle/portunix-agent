@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/CassandraGargoyle/portunix-agent/internal/keyboard"
 	"github.com/CassandraGargoyle/portunix-agent/internal/windows"
+	"github.com/CassandraGargoyle/portunix-agent/pkg/keyboard"
 	"github.com/spf13/cobra"
 )
 

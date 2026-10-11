@@ -103,17 +103,22 @@ func TestController_DelegatesToBackend(t *testing.T) {
 // mockBackend implements Backend for testing.
 type mockBackend struct {
 	lastTyped string
+	lastDelay int
 	lastKey   string
+	calls     int
 }
 
 func (m *mockBackend) Name() string { return "mock" }
 
 func (m *mockBackend) Type(text string, delayMs int, noIndent bool) error {
 	m.lastTyped = text
+	m.lastDelay = delayMs
+	m.calls++
 	return nil
 }
 
 func (m *mockBackend) Key(combo string) error {
 	m.lastKey = combo
+	m.calls++
 	return nil
 }
