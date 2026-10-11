@@ -261,7 +261,10 @@ None of these is a defect of this branch.
 
 ## CI Notes
 
-- The branch is not pushed. No CI run exists for commit `2de82b5`.
+- CI run 38117250137 on commit `bba5e46` passed in all jobs (2026-10-11): Lint, Unit Tests,
+  Cross Platform Tests on `ubuntu-latest` and `windows-latest`, Quality Gate.
+- CI run 38117461506 on commit `49d900e` (changelog added on the branch) passed in all jobs
+  (2026-10-11).
 - The CI workflow runs `go vet`, `gofmt -s`, `go test -race`, and the build on `ubuntu-latest`
   and `windows-latest`. The same commands pass locally.
 - CI runners have no `/dev/uinput`, so CI cannot close UI-01 to UI-03.
@@ -279,7 +282,10 @@ Required before approval:
 1. Run UI-01 on a host with write access to `/dev/uinput` (probe program, harmless Shift key only).
 2. Run UI-02: type 100 characters through one session into a text editor.
 3. Run UI-03: repeat `ptx-agent keyboard type`, `key`, and `paste` with the uinput backend.
-4. Push the branch and record the CI result.
+
+**Merge decision**: The project owner (zdendaku) approved the merge to `main` on 2026-10-11 as
+an exception to the CONDITIONAL status. The three checks above stay open as follow-up work and
+the tester status does not change to PASS until they are done.
 
 **Date**: 2026-10-11
 **Tester signature**: zdendaku (QA/Test Engineer)
